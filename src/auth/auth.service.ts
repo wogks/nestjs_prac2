@@ -13,6 +13,19 @@ export class AuthService {
     private readonly usersServies: UsersService,
   ) {}
 
+  extractTokenFromHeadr(header: string, isBearer: boolean) {
+    const splitToken = header.split(' ');
+
+    const prefix = isBearer ? 'Bearer' : 'Basic';
+
+    if (splitToken.length !== 2 || splitToken[0] !== prefix) {
+      throw new UnauthorizedException('잘못된 토큰');
+    }
+    const token = splitToken[1];
+
+    return token;
+  }
+
   //1 이메일,닉네임,비번을 입력받고 사용자를 생성한다. 생성 완료 후 토큰을 반환한다. 회원가입후 다시 로그인해주세요를 방지하기 위해서
   async registerWithEmail(
     user: Pick<UsersModel, 'nickname' | 'email' | 'password'>,
@@ -72,5 +85,20 @@ export class AuthService {
       throw new UnauthorizedException('비밀번호가 틀렸습니다.');
     }
     return existingUser;
+  }
+  decodeBasicToken(base64String: string) {
+    const decoded = Buffer.from(base64String, 'base64').toString('utf8');
+
+    const split = decoded.split(':');
+    if (split.length !== 2) {
+      throw new UnauthorizedException('잘못된 유형의 토큰이다');
+    }
+    const email = split[0];
+    const password = split[1];
+
+    return {
+      email,
+      password,
+    };
   }
 }
