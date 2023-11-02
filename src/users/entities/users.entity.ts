@@ -21,7 +21,9 @@ export class UsersModel {
   })
   email: string;
 
-  @Column()
+  @Column({
+    nullable: false,
+  })
   password: string;
 
   @Column({

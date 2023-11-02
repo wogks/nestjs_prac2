@@ -42,9 +42,9 @@ export class UsersService {
       password: user.password,
     });
 
-    const newUser = await this.usersRepository.save(user);
+    const newUser = await this.usersRepository.save(userObject);
 
-    return user;
+    return newUser;
   }
 
   async getUserByEmail(email: string) {
