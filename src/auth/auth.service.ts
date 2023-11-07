@@ -101,4 +101,23 @@ export class AuthService {
       password,
     };
   }
+  verifyToken(token: string) {
+    return this.jwtService.verify(token, {
+      secret: JWT_SEVRET,
+    });
+  }
+  rotateToken(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwtService.verify(token, {
+      secret: JWT_SEVRET,
+    });
+    if (decoded.type !== 'refresh') {
+      throw new UnauthorizedException('is not refrexh');
+    }
+    return this.signToken(
+      {
+        ...decoded,
+      },
+      isRefreshToken,
+    );
+  }
 }
