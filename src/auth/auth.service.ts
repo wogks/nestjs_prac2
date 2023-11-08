@@ -102,9 +102,13 @@ export class AuthService {
     };
   }
   verifyToken(token: string) {
-    return this.jwtService.verify(token, {
-      secret: JWT_SEVRET,
-    });
+    try {
+      return this.jwtService.verify(token, {
+        secret: JWT_SEVRET,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('토큰만료 혹은 잘못됨');
+    }
   }
   rotateToken(token: string, isRefreshToken: boolean) {
     const decoded = this.jwtService.verify(token, {
