@@ -1,3 +1,14 @@
+import {
+  IsEmail,
+  IsString,
+  Length,
+  ValidationArguments,
+  isEmail,
+  isString,
+} from 'class-validator';
+import { emailValidationMessage } from 'src/common/validation-message.ts/email';
+import { lengthValidationMessage } from 'src/common/validation-message.ts/length';
+import { stringValidationMessage } from 'src/common/validation-message.ts/string';
 import { PostsModel } from 'src/posts/entities/posts.entity';
 import {
   Column,
@@ -21,15 +32,34 @@ export class UsersModel {
     length: 20,
     unique: true,
   })
+  @Length(1, 20, {
+    message: lengthValidationMessage,
+  })
+  @IsString({
+    message: stringValidationMessage,
+  })
   nickname: string;
 
   @Column({
     unique: true,
   })
+  @IsString({
+    message: stringValidationMessage,
+  })
+  @IsEmail(
+    {},
+    {
+      message: emailValidationMessage,
+    },
+  )
   email: string;
 
-  @Column({
-    nullable: false,
+  @Column()
+  @IsString({
+    message: stringValidationMessage,
+  })
+  @Length(3, 8, {
+    message: lengthValidationMessage,
   })
   password: string;
 

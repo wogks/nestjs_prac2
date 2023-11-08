@@ -11,11 +11,14 @@ import {
   Put,
   UseGuards,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { UsersModel } from 'src/users/entities/users.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -33,22 +36,13 @@ export class PostsController {
 
   @Post()
   @UseGuards(AccessTokenGuard)
-  postPosts(
-    @User('id') userId: number,
-    @Body('title') title: string,
-    @Body('content') content: string,
-  ) {
-    const authorId = userId;
-    return this.postsService.createPost(authorId, title, content);
+  postPosts(@User('id') userId: number, @Body() body: CreatePostDto) {
+    return this.postsService.createPost(userId, body);
   }
 
-  @Put(':id')
-  putPost(
-    @Param('id') id: string,
-    @Body('title') title?: string,
-    @Body('content') content?: string,
-  ) {
-    return this.postsService.updatePost(+id, title, content);
+  @Patch(':id')
+  putPost(@Param('id') id: string, @Body() body: UpdatePostDto) {
+    return this.postsService.updatePost(+id, body);
   }
 
   @Delete(':id')

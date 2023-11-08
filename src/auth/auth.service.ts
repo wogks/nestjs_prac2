@@ -5,6 +5,7 @@ import { HASH_ROUNDS, JWT_SEVRET } from './const/auth.const';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { emit } from 'process';
+import { RegisterDto } from 'src/users/dto/register-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,9 +28,7 @@ export class AuthService {
   }
 
   //1 이메일,닉네임,비번을 입력받고 사용자를 생성한다. 생성 완료 후 토큰을 반환한다. 회원가입후 다시 로그인해주세요를 방지하기 위해서
-  async registerWithEmail(
-    user: Pick<UsersModel, 'nickname' | 'email' | 'password'>,
-  ) {
+  async registerWithEmail(user: RegisterDto) {
     const hash = await bcrypt.hash(user.password, HASH_ROUNDS);
     const newUser = await this.usersServies.createUser({
       ...user,

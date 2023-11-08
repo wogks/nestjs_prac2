@@ -3,6 +3,8 @@ import { Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersModel } from 'src/users/entities/users.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -31,13 +33,12 @@ export class PostsService {
     return post;
   }
 
-  async createPost(authorId: number, title: string, content: string) {
+  async createPost(authorId: number, postDto: CreatePostDto) {
     const post = this.postRepository.create({
       author: {
         id: authorId,
       },
-      title,
-      content,
+      ...postDto,
       likeCount: 0,
       commentCount: 0,
     });
@@ -47,7 +48,8 @@ export class PostsService {
     return newpost;
   }
 
-  async updatePost(postId: number, title: string, content: string) {
+  async updatePost(postId: number, postDto: UpdatePostDto) {
+    const { title, content } = postDto;
     const post = await this.postRepository.findOne({
       where: {
         id: postId,

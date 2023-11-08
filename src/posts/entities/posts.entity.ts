@@ -1,4 +1,6 @@
+import { IsString } from 'class-validator';
 import { BaseModel } from 'src/common/entity/base.entity';
+import { stringValidationMessage } from 'src/common/validation-message.ts/string';
 import { UsersModel } from 'src/users/entities/users.entity';
 import {
   Column,
@@ -17,9 +19,15 @@ export class PostsModel extends BaseModel {
   author: UsersModel;
 
   @Column()
+  @IsString({
+    message: stringValidationMessage,
+  })
   title: string;
 
   @Column()
+  @IsString({
+    message: stringValidationMessage,
+  })
   content: string;
 
   @Column()
