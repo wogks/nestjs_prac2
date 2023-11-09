@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersModel } from 'src/users/entities/users.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginatePostDtop } from './dto/paginate-post.dot';
 
 @Injectable()
 export class PostsService {
@@ -17,6 +18,29 @@ export class PostsService {
     return await this.postRepository.find({
       relations: ['author'],
     });
+  }
+
+  async paginatePosts(dto: PaginatePostDtop) {
+    const posts = await this.postRepository.find({
+      where: {
+        id: MoreThan(dto.where__id_more_than ?? 0),
+      },
+      order: {
+        createdAt: dto.order__createdAt,
+      },
+      take: dto.take,
+    });
+    return { data: posts };
+  }
+
+  async generatePosts(userId: number) {
+    for (let i = 0; i < 100; i++) {
+      await this.createPost(userId, {
+        title: `타이틀${i} `,
+        content: `내용${i}`,
+      });
+    }
+    return true;
   }
 
   async getPostById(id: number) {

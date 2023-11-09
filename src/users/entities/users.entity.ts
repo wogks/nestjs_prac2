@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   IsEmail,
   IsString,
@@ -60,6 +61,9 @@ export class UsersModel {
   })
   @Length(3, 8, {
     message: lengthValidationMessage,
+  })
+  @Exclude({
+    toPlainOnly: true,
   })
   password: string;
 
