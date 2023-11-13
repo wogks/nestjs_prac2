@@ -9,12 +9,14 @@ import { PaginatePostDtop } from './dto/paginate-post.dot';
 import { url } from 'inspector';
 import { URL } from 'url';
 import { HOST, PROTOCOL } from 'src/auth/const/env.const';
+import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(PostsModel)
     private readonly postRepository: Repository<PostsModel>,
+    private readonly commonService: CommonService,
   ) {}
 
   async getAllPosts() {
@@ -24,11 +26,12 @@ export class PostsService {
   }
 
   async paginatePosts(dto: PaginatePostDtop) {
-    if (dto.page) {
-      return this.pagePagenatePosts(dto);
-    } else {
-      return this.cursorPaginatePosts(dto);
-    }
+    return this.commonService.paginate(
+      dto,
+      this.postRepository,
+      { relations: ['author'] },
+      'posts',
+    );
   }
 
   async pagePagenatePosts(dto: PaginatePostDtop) {
@@ -48,10 +51,10 @@ export class PostsService {
   async cursorPaginatePosts(dto: PaginatePostDtop) {
     const where: FindOptionsWhere<PostsModel> = {};
 
-    if (dto.where__id_less_than) {
-      where.id = LessThan(dto.where__id_less_than);
-    } else if (dto.where__id_more_than) {
-      where.id = MoreThan(dto.where__id_more_than);
+    if (dto.where__id__less_than) {
+      where.id = LessThan(dto.where__id__less_than);
+    } else if (dto.where__id__more_than) {
+      where.id = MoreThan(dto.where__id__more_than);
     }
     const posts = await this.postRepository.find({
       where,
@@ -70,16 +73,19 @@ export class PostsService {
     if (nextUrl) {
       for (const key of Object.keys(dto)) {
         if (dto[key]) {
-          if (key !== 'where__id_more_than' && key !== 'where__id_less_than') {
+          if (
+            key !== 'where__id__more_than' &&
+            key !== 'where__id__less_than'
+          ) {
             nextUrl.searchParams.append(key, dto[key].toString());
           }
         }
       }
       let key = null;
       if (dto.order__createdAt === 'ASC') {
-        key = 'where__id_more_than';
+        key = 'where__id__more_than';
       } else {
-        key = 'where__id_less_than';
+        key = 'where__id__less_than';
       }
       nextUrl.searchParams.append(key, lastItem.id.toString());
     }
