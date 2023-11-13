@@ -4,6 +4,10 @@ import { IsIn, IsNumber, IsOptional, isNumber } from 'class-validator';
 export class PaginatePostDtop {
   @IsNumber()
   @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @IsOptional()
   where__id_less_than?: number;
 
   @IsNumber()
