@@ -14,3 +14,7 @@ export const POST_PUBLIC_IMAGE_PATH = join(
   PUBLIC_FOLDER_NAME,
   POSTS_FOLDER_NAME,
 );
+
+export const TEMP_FOLDER_NAME = 'temp';
+
+export const TEMP_FOLDER_PATH = join(PUBLIC_FOLDER_PATH, TEMP_FOLDER_NAME);

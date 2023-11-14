@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +18,13 @@ import {
   ENV_PROTOCOL_KEY,
 } from 'src/common/const/env-keys.const';
 import { ConfigService } from '@nestjs/config';
+import {
+  POST_IMAGE_PATH,
+  PUBLIC_FOLDER_PATH,
+  TEMP_FOLDER_PATH,
+} from 'src/common/const/path.const';
+import { basename, join } from 'path';
+import { promises } from 'fs';
 
 @Injectable()
 export class PostsService {
@@ -131,13 +142,12 @@ export class PostsService {
     return post;
   }
 
-  async createPost(authorId: number, postDto: CreatePostDto, image?: string) {
+  async createPost(authorId: number, postDto: CreatePostDto) {
     const post = this.postRepository.create({
       author: {
         id: authorId,
       },
       ...postDto,
-      image,
       likeCount: 0,
       commentCount: 0,
     });
@@ -145,6 +155,22 @@ export class PostsService {
     const newpost = await this.postRepository.save(post);
 
     return newpost;
+  }
+
+  async createPostImage(dto: CreatePostDto) {
+    const tempFilePath = join(TEMP_FOLDER_PATH, dto.image);
+    try {
+      await promises.access(tempFilePath);
+    } catch (e) {
+      throw new BadRequestException('존재하지않는 파일');
+    }
+    const fileName = basename(tempFilePath);
+
+    const newPath = join(POST_IMAGE_PATH, fileName);
+
+    await promises.rename(tempFilePath, newPath);
+
+    return true;
   }
 
   async updatePost(postId: number, postDto: UpdatePostDto) {
