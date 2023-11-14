@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersModel } from 'src/users/entities/users.entity';
-import { HASH_ROUNDS, JWT_SEVRET } from './const/auth.const';
+import { HASH_ROUNDS, JWT_SECRET } from './const/auth.const';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { emit } from 'process';
@@ -62,7 +62,7 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload, {
-      secret: JWT_SEVRET,
+      secret: JWT_SECRET,
       //기한 초단위
       expiresIn: isRefreshToken ? 3600 : 300,
     });
@@ -103,7 +103,7 @@ export class AuthService {
   verifyToken(token: string) {
     try {
       return this.jwtService.verify(token, {
-        secret: JWT_SEVRET,
+        secret: JWT_SECRET,
       });
     } catch (error) {
       throw new UnauthorizedException('토큰만료 혹은 잘못됨');
@@ -111,7 +111,7 @@ export class AuthService {
   }
   rotateToken(token: string, isRefreshToken: boolean) {
     const decoded = this.jwtService.verify(token, {
-      secret: JWT_SEVRET,
+      secret: JWT_SECRET,
     });
     if (decoded.type !== 'refresh') {
       throw new UnauthorizedException('is not refrexh');

@@ -8,8 +8,12 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDtop } from './dto/paginate-post.dot';
 import { url } from 'inspector';
 import { URL } from 'url';
-import { HOST, PROTOCOL } from 'src/auth/const/env.const';
 import { CommonService } from 'src/common/common.service';
+import {
+  ENV_HOST_KEY,
+  ENV_PROTOCOL_KEY,
+} from 'src/common/const/env-keys.const';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PostsService {
@@ -17,6 +21,7 @@ export class PostsService {
     @InjectRepository(PostsModel)
     private readonly postRepository: Repository<PostsModel>,
     private readonly commonService: CommonService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getAllPosts() {
@@ -67,8 +72,10 @@ export class PostsService {
       posts.length > 0 && posts.length === dto.take
         ? posts[posts.length - 1]
         : null;
+    const protocol = this.configService.get<string>(ENV_PROTOCOL_KEY);
+    const host = this.configService.get<string>(ENV_HOST_KEY);
 
-    const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
+    const nextUrl = lastItem && new URL(`${protocol}://${host}/posts`);
 
     if (nextUrl) {
       for (const key of Object.keys(dto)) {
@@ -124,12 +131,13 @@ export class PostsService {
     return post;
   }
 
-  async createPost(authorId: number, postDto: CreatePostDto) {
+  async createPost(authorId: number, postDto: CreatePostDto, image?: string) {
     const post = this.postRepository.create({
       author: {
         id: authorId,
       },
       ...postDto,
+      image,
       likeCount: 0,
       commentCount: 0,
     });
